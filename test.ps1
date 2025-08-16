@@ -25,14 +25,14 @@ $zipFile = Join-Path $downloadPath "CIS-CAT.zip"
 $extractPath = Join-Path $downloadPath "CIS-CAT"
 Expand-Archive -Path $zipFile -DestinationPath $extractPath -Force
 
-# Create shortcut for Assessor-GUI.exe
-$targetExe = Join-Path $extractPath "Assessor-GUI.exe"
+# Create shortcut for Assessor-GUI.exe inside CIS-CAT\Assessor\
+$targetExe = Join-Path $extractPath "Assessor\Assessor-GUI.exe"
 $shortcutPath = Join-Path $desktopPath "Assessor-GUI.lnk"
 
 $WScriptShell = New-Object -ComObject WScript.Shell
 $shortcut = $WScriptShell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = $targetExe
-$shortcut.WorkingDirectory = $extractPath
+$shortcut.WorkingDirectory = (Split-Path $targetExe)
 $shortcut.Save()
 
 Write-Output "Shortcut created on Desktop for Assessor-GUI.exe"
