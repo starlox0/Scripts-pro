@@ -8,6 +8,11 @@ secedit /configure /db C:\Windows\security\local.sdb /cfg C:\secpol.cfg /areas U
 Remove-Item C:\secpol.cfg -Force
 Write-Host "[+] Everyone can log on locally"
 
+# Account
+net accounts /lockoutduration:100
+net accounts /lockoutthreshold:0
+net accounts /lockoutwindow:0
+
 # Enable Guest account
 net user guest /active:yes
 Write-Host "[+] Guest account enabled"
@@ -46,4 +51,5 @@ net localgroup "Users" user1 /add
 Write-Host "[+] User 'user1' created with password 'password' (normal user only)"
 
 Write-Host "[*] Script completed. Please restart the computer."
+
 
