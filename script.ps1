@@ -38,6 +38,16 @@ Write-Host "[+] SMB signing disabled"
 REG ADD "HKLM\SYSTEM\CurrentControlSet\Control\Lsa" /v RestrictAnonymousSAM /t REG_DWORD /d 0 /f
 Write-Host "[+] SAM enumeration allowed"
 
+# Disable "EnableSecuritySignature" for client (so it won’t attempt signing if offered)
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" -Name EnableSecuritySignature -Value 0
+
+# Disable "EnableSecuritySignature" for server
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name EnableSecuritySignature -Value 0
+
+# Verify both client & server settings
+Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" | Select RequireSecuritySignature, EnableSecuritySignature
+Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" | Select RequireSecuritySignature, EnableSecuritySignature
+
 # Disable Logon Auditing
 auditpol /set /subcategory:"Logon" /success:disable /failure:disable
 wevtutil el | ForEach-Object { wevtutil cl $_ }
@@ -66,45 +76,3 @@ Write-Host "[+] PowerShell access restored for user1"
 
 # Enable Telnet Client
 dism /online /Enable-Feature /FeatureName:TelnetClient
-
-# FIle Transfer
-# Variables
-$serverIP = "192.168.60.45"
-$port = "1111"
-$downloadPath = "$env:USERPROFILE\Downloads"
-$desktopPath = [Environment]::GetFolderPath("Desktop")
-
-# Files to download
-$files = @("CIS-CAT.zip", "kpym.exe")
-
-# Create download folder if not exists
-if (!(Test-Path $downloadPath)) {
-    New-Item -ItemType Directory -Path $downloadPath | Out-Null
-}
-
-# Download files
-foreach ($file in $files) {
-    $url = "http://$serverIP`:$port/$file"
-    $destination = Join-Path $downloadPath $file
-    Invoke-WebRequest -Uri $url -OutFile $destination
-    Write-Output "Downloaded: $file"
-}
-
-# Unzip CIS-CAT.zip
-$zipFile = Join-Path $downloadPath "CIS-CAT.zip"
-$extractPath = Join-Path $downloadPath "CIS-CAT"
-Expand-Archive -Path $zipFile -DestinationPath $extractPath -Force
-
-# Create shortcut for Assessor-GUI.exe inside CIS-CAT\Assessor\
-$targetExe = Join-Path $extractPath "Assessor\Assessor-GUI.exe"
-$shortcutPath = Join-Path $desktopPath "Assessor-GUI.lnk"
-
-$WScriptShell = New-Object -ComObject WScript.Shell
-$shortcut = $WScriptShell.CreateShortcut($shortcutPath)
-$shortcut.TargetPath = $targetExe
-$shortcut.WorkingDirectory = (Split-Path $targetExe)
-$shortcut.Save()
-
-Write-Output "Shortcut created on Desktop for Assessor-GUI.exe"
-
-Write-Host "[*] Script completed. Please restart the computer."
