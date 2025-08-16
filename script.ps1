@@ -12,6 +12,10 @@ Write-Host "[+] Everyone can log on locally"
 net accounts /lockoutduration:100
 net accounts /lockoutthreshold:0
 net accounts /lockoutwindow:0
+net accounts /minpwlen:5     
+net accounts /maxpwage:90    
+net accounts /minpwage:0    
+net accounts /uniquepw:0
 
 # Enable Guest account
 net user guest /active:yes
@@ -51,5 +55,6 @@ net localgroup "Users" user1 /add
 Write-Host "[+] User 'user1' created with password 'password' (normal user only)"
 
 Write-Host "[*] Script completed. Please restart the computer."
+
 
 
