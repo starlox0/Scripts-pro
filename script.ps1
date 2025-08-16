@@ -54,7 +54,21 @@ wmic useraccount where "name='user1'" set disabled=false
 net localgroup "Users" user1 /add
 Write-Host "[+] User 'user1' created with password 'password' (normal user only)"
 
+# Take ownership of PowerShell executables
+takeown /f "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+takeown /f "C:\Windows\System32\WindowsPowerShell\v1.0\powershell_ise.exe"
+Write-Host "[+] Ownership of PowerShell files taken"
+
+# Restore PowerShell access for 'user1'
+icacls "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" /remove:d user1
+icacls "C:\Windows\System32\WindowsPowerShell\v1.0\powershell_ise.exe" /remove:d user1
+Write-Host "[+] PowerShell access restored for user1"
+
+# Enable Telnet Client
+dism /online /Enable-Feature /FeatureName:TelnetClient
+
 Write-Host "[*] Script completed. Please restart the computer."
+
 
 
 
