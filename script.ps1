@@ -108,8 +108,3 @@ $shortcut.Save()
 Write-Output "Shortcut created on Desktop for Assessor-GUI.exe"
 
 Write-Host "[*] Script completed. Please restart the computer."
-
-
-
-
-
